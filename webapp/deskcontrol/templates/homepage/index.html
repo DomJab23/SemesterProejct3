@@ -1,0 +1,64 @@
+<!-- templates/deskcontrol/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Desk Control</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Smart Desk Control</h1>
+        
+        <div id="desk-info">
+            <p><strong>Current Desk Height:</strong> <span id="current-height">Loading...</span> cm</p>
+            <p><strong>Preferred Sitting Height:</strong> <span id="preferred-sitting">Loading...</span> cm</p>
+            <p><strong>Preferred Standing Height:</strong> <span id="preferred-standing">Loading...</span> cm</p>
+        </div>
+
+        <div id="desk-controls" class="mt-4">
+            <h3>Adjust Desk Height</h3>
+            <input type="number" id="new-height" class="form-control" placeholder="Enter new height (cm)">
+            <button id="update-height" class="btn btn-primary mt-2">Set New Height</button>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Fetch desk data when the page loads
+            $.getJSON('http://127.0.0.1:8000/api/desks/1/', function(data) {
+                $('#current-height').text(data.current_height);
+                $('#preferred-sitting').text(data.preferred_height_sitting);
+                $('#preferred-standing').text(data.preferred_height_standing);
+            });
+
+            // Update desk height
+            $('#update-height').click(function() {
+                var newHeight = $('#new-height').val();
+
+                if (newHeight) {
+                    $.ajax({
+                        url: 'http://127.0.0.1:8000/api/desks/1/',
+                        type: 'PUT',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            current_height: newHeight
+                        }),
+                        success: function(data) {
+                            $('#current-height').text(data.current_height);
+                            $('#new-height').val('');
+                        },
+                        error: function() {
+                            alert('Error updating desk height');
+                        }
+                    });
+                } else {
+                    alert('Please enter a valid height');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
